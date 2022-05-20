@@ -6,7 +6,7 @@ const Home = ({navigation}) => {
   return (
       <View style={styles.container}>
     <View>
-      <Title/>
+      <Title heading="Home"/>
     </View>
     <View style={styles.bannerContainer}>
     <Image source={{uri: 'https://thumbs.dreamstime.com/b/quiz-your-computer-screen-answer-choices-vector-illustration-interesting-147620425.jpg'}}

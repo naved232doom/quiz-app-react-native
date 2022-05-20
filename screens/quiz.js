@@ -3,16 +3,17 @@ import React from 'react';
 import {useState, useEffect} from 'react';
 
 function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
 }
 const Quiz = ({navigation}) => {
   // fetch questions
   const [questions, setQuestions] = useState();
   const [questionNumber, setQuestionNumber] = useState(0);
-  const [options,setOptions]= useState([]);
+  const [options, setOptions] = useState([]);
+  const [score,setScore]= useState(0);
   const getQuiz = async () => {
     const url =
       'https://opentdb.com/api.php?amount=10&category=23&type=multiple&encode=url3986';
@@ -21,8 +22,8 @@ const Quiz = ({navigation}) => {
     const data = await res.json();
     //console.log(data.results[0].incorrect_answers);
     setQuestions(data.results);
-    console.log(data.results[0])
-   generateOptionsAndShuffle(data.results[0]);
+    console.log(data.results[0]);
+    setOptions(generateOptionsAndShuffle(data.results[0]));
   };
   useEffect(() => {
     getQuiz();
@@ -31,26 +32,57 @@ const Quiz = ({navigation}) => {
   // handleNext
   const handleNextPress = () => {
     setQuestionNumber(questionNumber + 1);
+    setOptions(generateOptionsAndShuffle(questions[questionNumber+1]))
+  };
+  
+  const handleShowResult =()=>{
+      navigation.navigate('Result',{
+          score: score
+      });
+  }
+  const generateOptionsAndShuffle = _question => {
+    //console.log(_question.incorrect_answers);
+    const shuffledOptions = [..._question.incorrect_answers];
+    shuffledOptions.push(_question.correct_answer);
+    console.log(shuffledOptions);
+    shuffleArray(shuffledOptions);
+    console.log(shuffledOptions);
+    return shuffledOptions;
   };
 
-  const generateOptionsAndShuffle =(_question)=> {
-      const options= [..._question.incorrect_answer]
-      options.push(_question.correct_answer);
-      console.log(options);
-  }
-
+  const handleSelectedOption = (_option)=>{
+      console.log(_option===questions[questionNumber].correct_answer);
+        if(_option===questions[questionNumber].correct_answer){
+            setScore(score+10);
+        }
+        if(questionNumber<9){
+        setQuestionNumber(questionNumber + 1);
+        setOptions(generateOptionsAndShuffle(questions[questionNumber+1]))
+        }
+    }
   return (
     <View style={styles.container}>
       {questions && (
         <View style={styles.parent}>
           <View style={styles.top}>
             <Text style={styles.question}>
-              Q. {decodeURIComponent(questions[questionNumber].question) }
+              Q. {decodeURIComponent(questions[questionNumber].question)}
             </Text>
           </View>
           <View style={styles.options}>
-            <TouchableOpacity style={styles.optionButton}>
-              <Text style={styles.option}>optionButton 1</Text>
+              {
+                  options.map((option,index)=>{
+                      return (
+                        <TouchableOpacity 
+                        key={index}
+                        onPress={()=> handleSelectedOption(option)} style={styles.optionButton}>
+                        <Text style={styles.option}>{decodeURIComponent(option)}</Text>
+                      </TouchableOpacity>
+                      )
+                  })
+              }
+            {/* <TouchableOpacity style={styles.optionButton}>
+              <Text style={styles.option}>{options[0]}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton}>
               <Text style={styles.option}>optionButton 2</Text>
@@ -60,23 +92,23 @@ const Quiz = ({navigation}) => {
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton}>
               <Text style={styles.option}>optionButton 4</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
           <View style={styles.bottom}>
-            <TouchableOpacity style={styles.button}>
+            {/* <TouchableOpacity style={styles.button}>
               <Text style={styles.buttonText}>SKIP</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             {questionNumber < 9 && (
               <TouchableOpacity style={styles.button} onPress={handleNextPress}>
-                <Text style={styles.buttonText}>NEXT</Text>
+                <Text style={styles.buttonText}>SKIP</Text>
               </TouchableOpacity>
             )}
 
-            {questionNumber == 9 && (
+            {questionNumber >= 9 && (
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => navigation.navigate('Result')}>
-                <Text style={styles.buttonText}>END</Text>
+                onPress={handleShowResult}>
+                <Text style={styles.buttonText}>RESULT</Text>
               </TouchableOpacity>
             )}
           </View>
