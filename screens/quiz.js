@@ -2,6 +2,8 @@ import {TouchableOpacity, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import {useState, useEffect} from 'react';
 
+import {useContext} from 'react';
+import ScoreContext from '../Context/ScoreContext';
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -10,10 +12,16 @@ function shuffleArray(array) {
 }
 const Quiz = ({navigation}) => {
   // fetch questions
+  const {score} = useContext(ScoreContext);
+  const {incrementScore} = useContext(ScoreContext);
+  // console.log(ScoreContext);
+  // console.log(score);
+  //console.log(incrementScore);
   const [questions, setQuestions] = useState();
   const [questionNumber, setQuestionNumber] = useState(0);
   const [options, setOptions] = useState([]);
-  const [score,setScore]= useState(0);
+  //const [score,setScore]= useState(0);
+  
   const getQuiz = async () => {
     const url =
       'https://opentdb.com/api.php?amount=10&category=23&type=multiple&encode=url3986';
@@ -53,7 +61,7 @@ const Quiz = ({navigation}) => {
   const handleSelectedOption = (_option)=>{
       console.log(_option===questions[questionNumber].correct_answer);
         if(_option===questions[questionNumber].correct_answer){
-            setScore(score+10);
+            incrementScore(10);
         }
         if(questionNumber<9){
         setQuestionNumber(questionNumber + 1);

@@ -5,13 +5,15 @@ import Quiz from './screens/quiz'
 import Result from './screens/result'
 import { NavigationContainer } from '@react-navigation/native'
 import StackNavigator from './navigation'
+import { ScoreProvider } from './Context/ScoreContext'
 
 const App = () => {
   return (
-    
+    <ScoreProvider>
      <NavigationContainer>
        <StackNavigator/>
      </NavigationContainer>
+     </ScoreProvider>
    
   )
 }
